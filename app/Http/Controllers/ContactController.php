@@ -61,4 +61,27 @@ class ContactController extends Controller
             return response()->json($response, 404);
         }
     }
+
+    // Update a contact by phone number
+    public function update(Request $request)
+    {
+        // Validate the phone number
+        $request->validate([
+            'phone' => 'required|string|max:20',
+        ]);
+
+        try {
+            // Use the model method to update the contact by phone number
+            $contact = Contact::updateByPhone($request->phone, $request->all());
+
+            if ($contact) {
+                return response()->json($contact, 200);
+            } else {
+                return response()->json(['message' => 'Contact not found'], 404);
+            }
+        } catch (ValidationException $e) {
+            // Return validation errors
+            return response()->json($e->errors(), 422);
+        }
+    }
 }

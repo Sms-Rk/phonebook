@@ -63,4 +63,31 @@ class Contact extends Model
             return ['message' => 'Contact not found'];
         }
     }
+
+    // Method to handle updating a contact by phone number
+    public static function updateByPhone(string $phone, array $data)
+    {
+        // Find the contact by phone number
+        $contact = self::where('phone', $phone)->first();
+
+        if ($contact) {
+            // Validate the data
+            $validator = Validator::make($data, [
+                'name' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|string|email|max:255|unique:contacts,email,' . $contact->id,
+                'phone' => 'sometimes|required|string|max:20|unique:contacts,phone,' . $contact->id,
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            // Update the contact
+            $contact->update($validator->validated());
+
+            return $contact;
+        } else {
+            return null;
+        }
+    }
 }
