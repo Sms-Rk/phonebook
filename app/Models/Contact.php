@@ -1,11 +1,14 @@
 <?php
 
+// app/Models/Contact.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Contact extends Model
 {
@@ -34,7 +37,6 @@ class Contact extends Model
     // Method to handle creation of a new contact
     public static function createContact(array $data)
     {
-        // Validate the data
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:contacts',
@@ -45,33 +47,28 @@ class Contact extends Model
             throw new ValidationException($validator);
         }
 
-        // Create and return the new contact
         return self::create($validator->validated());
     }
 
     // Method to handle deletion of a contact by phone number
     public static function deleteByPhone(string $phone)
     {
-        // Find the contact by phone number
         $contact = self::where('phone', $phone)->first();
 
         if ($contact) {
-            // Delete the contact
             $contact->delete();
             return ['message' => 'Contact deleted successfully'];
         } else {
-            return ['message' => 'Contact not found'];
+            throw new ModelNotFoundException('Contact not found');
         }
     }
 
     // Method to handle updating a contact by phone number
     public static function updateByPhone(string $phone, array $data)
     {
-        // Find the contact by phone number
         $contact = self::where('phone', $phone)->first();
 
         if ($contact) {
-            // Validate the data
             $validator = Validator::make($data, [
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|string|email|max:255|unique:contacts,email,' . $contact->id,
@@ -82,12 +79,10 @@ class Contact extends Model
                 throw new ValidationException($validator);
             }
 
-            // Update the contact
             $contact->update($validator->validated());
-
             return $contact;
         } else {
-            return null;
+            throw new ModelNotFoundException('Contact not found');
         }
     }
 }
