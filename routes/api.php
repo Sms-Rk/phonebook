@@ -1,12 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+// routes/api.php
+
 use App\Http\Controllers\ContactController;
+use Illuminate\Support\Facades\Route;
 
-
-
-Route::get('/contacts', [ContactController::class, 'index']);
-Route::get('/contacts/show', [ContactController::class, 'show']);
-Route::post('/contacts', [ContactController::class, 'store']);
-Route::put('/contacts', [ContactController::class, 'update']);
-Route::delete('/contacts', [ContactController::class, 'destroy']);
+Route::prefix('contacts')->group(function () {
+    Route::get('/', [ContactController::class, 'index']);
+    Route::get('/{phone}', [ContactController::class, 'show']);
+    Route::post('/', [ContactController::class, 'store']);
+    Route::put('/{phone}', [ContactController::class, 'update']);
+    Route::delete('/{phone}', [ContactController::class, 'destroy']);
+});
